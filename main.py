@@ -1,6 +1,10 @@
 #--- ИМПОРТ ---
 import os
 from fastapi import FastAPI, Form, Depends
+
+from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -35,9 +39,19 @@ def get_db():
     finally:
         db.close()
 
+site.mount("/static", StaticFiles(directory="static"), name="static")
+
+#--- Страницы сайта (GET) ---
+
 @site.get("/")
 def home():
-    return {"status": "Бэкэнд работает"}
+    return FileResponse("static/index.html")
+
+@site.get("/test")
+def test():
+    return FileResponse("static/test.html")
+
+#--- Команды от сайта (POST) ---
 
 @site.post('/register')
 def register(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
@@ -47,7 +61,7 @@ def register(username: str = Form(...), password: str = Form(...), db: Session =
     db.commit()
     db.refresh(new_user)
 
-    return {'message': f'{username} добавлен'}
+    return RedirectResponse(url="/test", status_code=303)
 
 @site.post('/login')
 def login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
@@ -56,4 +70,4 @@ def login(username: str = Form(...), password: str = Form(...), db: Session = De
     if not user or user.password != password:
         return {'error': "Неверный пароль или логин"}
     
-    return {'message': f"Приветсвую, {username}"}
+    return RedirectResponse(url="/test", status_code=303)
