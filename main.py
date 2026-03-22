@@ -1,4 +1,5 @@
 #--- ИМПОРТ ---
+import os
 from fastapi import FastAPI, Form, Depends
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -6,9 +7,10 @@ from sqlalchemy.orm import sessionmaker, Session
 
 #--- Поключаем движок к базе данных ---
 
-DATABASE_URL = 'sqlite:///./program.db'
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
+Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 #--- Создание таблицы ---
@@ -32,6 +34,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@site.get("/")
+def home():
+    return {"status": "Бэкэнд работает"}
 
 @site.post('/register')
 def register(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
