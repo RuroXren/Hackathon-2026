@@ -4,3 +4,6 @@ python-multipart
 python-dotenv
 pydantic-settings
 uvicorn
+psycopg2-binary
+passlib[bcrypt]
+httpx

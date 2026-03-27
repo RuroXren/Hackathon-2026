@@ -1,24 +1,25 @@
-async function loginUser(event) {
+async function handleAuth(event, url) {
     event.preventDefault();
     
-    const formData = new FormData(document.getElementById('login-form'));
+    const form = event.target;
+    const formData = new FormData(form);
 
     try {
-        const response = await fetch('/login', {
+        const response = await fetch(url, {
             method: 'POST',
             body: formData
         });
 
+        const data = await response.json();
+
         if (response.ok) {
-            const data = await response.json();
-
             localStorage.setItem('user_display_name', data.username);
-
             window.location.href = data.redirect_url;
         } else {
-            alert("Ошибка! Логин и пароль");
+            alert("Ошибка: " + (data.detail || "Неверные данные"));
         }
     } catch (error) {
-        console.error("Ошибка сети", error)
+        console.error("Ошибка сети:", error);
+        alert("Сервер не отвечает");
     }
 }

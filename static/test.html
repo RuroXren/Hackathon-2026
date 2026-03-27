@@ -1,25 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST</title>
+    <title>Backend Test Node</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
+        .status-ok { color: #00ff00; }
+        .status-err { color: #ff0000; }
+        .log-box { border: 1px solid #333; padding: 10px; background: #000; }
+    </style>
 </head>
 <body>
-    <h1 id="welcome-title">Wait...</h1>
+    <h2>[ Backend Integration Test ]</h2>
+    
+    <div class="log-box">
+        <p>> Состояние авторизации: <span id="auth-status">Проверка...</span></p>
+        <p>> Текущий пользователь: <span id="user-display">NONE</span></p>
+        <p>> Токен доступа (local): <span id="token-status">Active</span></p>
+    </div>
+
+    <br>
+    <button onclick="logout()">Сбросить сессию (Logout)</button>
+    <button onclick="window.location.href='/'">На главную</button>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const name = localStorage.getItem('user_display_name');
-            const titleElement = document.getElementById('welcome-title');
+            // Проверка данных из localStorage
+            const username = localStorage.getItem('user_display_name'); 
+            const authStatus = document.getElementById('auth-status');
+            const userDisplay = document.getElementById('user-display');
 
-            if (name) {
-                titleElement.innerText = `Добро пожаловать, ${name}!`;
+            if (username) {
+                authStatus.innerText = "SUCCESS";
+                authStatus.className = "status-ok";
+                userDisplay.innerText = username;
             } else {
-                titleElement.innerText = "Доступ не разрешен. Войдите.";
-                window.location.href = "/"
+                authStatus.innerText = "UNAUTHORIZED";
+                authStatus.className = "status-err";
+                // Если теста не прошел — редирект
+                setTimeout(() => { window.location.href = "/"; }, 2000);
             }
-        })
+        });
+
+        function logout() {
+            localStorage.removeItem('user_display_name');
+            location.reload();
+        }
     </script>
 </body>
 </html>
