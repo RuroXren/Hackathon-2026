@@ -6,6 +6,20 @@
     <title>TEST</title>
 </head>
 <body>
-    <h1>Успешно вошел (Пока имени пользователя нету)</h1>
+    <h1 id="welcome-title">Wait...</h1>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const name = localStorage.getItem('user_display_name');
+            const titleElement = document.getElementById('welcome-title');
+
+            if (name) {
+                titleElement.innerText = `Добро пожаловать, ${name}!`;
+            } else {
+                titleElement.innerText = "Доступ не разрешен. Войдите.";
+                window.location.href = "/"
+            }
+        })
+    </script>
 </body>
 </html>

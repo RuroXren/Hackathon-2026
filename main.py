@@ -1,6 +1,6 @@
 #--- ИМПОРТ ---
 import os
-from fastapi import FastAPI, Form, Depends
+from fastapi import FastAPI, Form, Depends, HTTPException
 
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -61,13 +61,21 @@ def register(username: str = Form(...), password: str = Form(...), db: Session =
     db.commit()
     db.refresh(new_user)
 
-    return RedirectResponse(url="/test", status_code=303)
+    return {
+        "status": "success",
+        "username": new_user.username,
+        "redirect_url": "/static/test.html"
+    }
 
 @site.post('/login')
-def login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+async def login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == username).first()
 
     if not user or user.password != password:
-        return {'error': "Неверный пароль или логин"}
+        raise HTTPException(status_code=401, detail="Invalid")
     
-    return RedirectResponse(url="/test", status_code=303)
+    return {
+        "status": "success",
+        "username": user.username,
+        "redirect_url": "/static/test.html"
+    }
